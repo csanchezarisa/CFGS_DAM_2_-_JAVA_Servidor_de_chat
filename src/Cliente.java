@@ -17,11 +17,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
 
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JPanel;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 class AccionEnviar implements ActionListener{
     private JTextField areaTexto;
@@ -88,10 +84,12 @@ class Talk {
 }
 
 public class Cliente {
+
+    private static String direccion = "localhost";
+    private static int puerto = 9999;
+    private static String login = "Nadie";
+
     public static void main(String[] args)throws IOException {
-        String direccion = "localhost";
-        int puerto = 9999;
-        String login = "Nadie";
 
         if(args.length >= 1){
             login = args[0];
@@ -102,6 +100,38 @@ public class Cliente {
         if(args.length >= 3){
             puerto = Integer.parseInt(args[2]);
         }
+
+        login();
+
+    }
+
+    private static void login() throws IOException {
+        JFrame frame = new JFrame("Login");
+        frame.setLayout(new BorderLayout());
+        JPanel jPanel = new JPanel(new FlowLayout());
+        frame.add(jPanel, "Center");
+        JLabel label = new JLabel("Nombre de usuario");
+        jPanel.add(label);
+        JTextField editText = new JTextField(30);
+        jPanel.add(editText);
+
+        JButton botonLogin = new JButton("Login");
+        jPanel.add(botonLogin);
+        frame.setSize(400,200);
+        frame.setVisible(true);
+
+        botonLogin.addActionListener(e -> {
+            String login = editText.getText();
+            if (login.length() == 0) login = "Nadie";
+            Cliente.login = login;
+            frame.dispose();
+
+
+            setSocket();
+        });
+    }
+
+    private static void setSocket() throws IOException {
         Socket socket = new Socket(direccion, puerto);
 
         Talk talk = new Talk(socket, login);
