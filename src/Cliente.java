@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
+import java.util.Scanner;
 
 import javax.swing.*;
 
@@ -50,6 +51,7 @@ class Talk {
     }
 
     public void hablar(){
+
         JFrame marco = new JFrame(login);
         marco.setLayout(new BorderLayout());
         JTextArea areaTexto = new JTextArea("");
@@ -60,12 +62,11 @@ class Talk {
         JTextField campoTexto = new JTextField(30);
         panel.add(campoTexto);
         JButton botonEnviar = new JButton("Enviar");
-        AccionEnviar ae = new AccionEnviar(socket, campoTexto, login);
-        botonEnviar.addActionListener(ae);
         panel.add(botonEnviar);
         marco.setSize(600,800);
         marco.setVisible(true);
-
+        AccionEnviar ae = new AccionEnviar(socket, campoTexto, login);
+        botonEnviar.addActionListener(ae);
         BufferedReader entrada;
         PrintStream salida;
         try {
@@ -80,6 +81,7 @@ class Talk {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }
 
@@ -87,7 +89,7 @@ public class Cliente {
 
     private static String direccion = "localhost";
     private static int puerto = 9999;
-    private static String login = "Nadie";
+    private static String login = "";
 
     public static void main(String[] args)throws IOException {
 
@@ -103,6 +105,12 @@ public class Cliente {
 
         login();
 
+
+        while (Cliente.login == "") {
+            System.out.println("Esperant login... Nom d'usuari " + login);
+        }
+
+        openTalk();
     }
 
     private static void login() throws IOException {
@@ -117,7 +125,7 @@ public class Cliente {
 
         JButton botonLogin = new JButton("Login");
         jPanel.add(botonLogin);
-        frame.setSize(400,200);
+        frame.setSize(400, 200);
         frame.setVisible(true);
 
         botonLogin.addActionListener(e -> {
@@ -125,19 +133,40 @@ public class Cliente {
             if (login.length() == 0) login = "Nadie";
             Cliente.login = login;
             frame.dispose();
-
-
-            setSocket();
         });
     }
 
-    private static void setSocket() throws IOException {
-        Socket socket = new Socket(direccion, puerto);
+    private static void openTalk() {
+        Socket socket = setSocket();
 
+        talk(socket);
+
+        finalizeClient(socket);
+    }
+
+    private static Socket setSocket() {
+        Socket socket = null;
+        try {
+            socket = new Socket(direccion, puerto);
+        }
+        catch (Exception e) {
+
+        }
+        return socket;
+    }
+
+    private static void talk(Socket socket) {
         Talk talk = new Talk(socket, login);
         talk.hablar();
+    }
 
-        socket.close();
+    private static void finalizeClient(Socket socket) {
+        try {
+            socket.close();
+        }
+        catch (Exception e) {
+            System.exit(-1);
+        }
         System.exit(0);
     }
 
