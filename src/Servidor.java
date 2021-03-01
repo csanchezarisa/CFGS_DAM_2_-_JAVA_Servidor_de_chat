@@ -15,6 +15,7 @@ import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
 
 class ListaSockets{
     private Socket[] socket; // Los otros sockets
@@ -53,6 +54,7 @@ class ListaSockets{
 class Serv implements Runnable{
     private Socket socket; // Socket propio.
     private ListaSockets listaSockets; // Los otros sockets
+    private ArrayList<String> historialMensajes = new ArrayList<>();
 
     public Serv(Socket s, ListaSockets ls) {
         socket = s;
@@ -66,12 +68,30 @@ class Serv implements Runnable{
             entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String mensaje;
             while( (mensaje = entrada.readLine()) != null){
-                for (int i = 0; i < listaSockets.length(); i++) {
-                    listaSockets.getSalida(i).println(mensaje);
+
+                String[] partesMensaje = mensaje.split("~");
+
+                switch (partesMensaje[0]) {
+                    case "**Normal", "**Login" -> enviarMensajesNormal(partesMensaje);
                 }
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    /** Envía el mensaje a todos los Sockets que hay registrados */
+    private void enviarMensajesNormal(String[] partesMensaje) {
+        String mensaje = "";
+
+        for (int i = 1; i < partesMensaje.length; i++) {
+            mensaje += partesMensaje[i];
+        }
+
+        historialMensajes.add(mensaje);
+
+        for (int i = 0; i < listaSockets.length(); i++) {
+            listaSockets.getSalida(i).println(mensaje);
         }
     }
 

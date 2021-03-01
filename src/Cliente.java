@@ -36,7 +36,7 @@ class AccionEnviar implements ActionListener{
     }
 
     public void actionPerformed(ActionEvent e){
-        salida.println(login + "> " + areaTexto.getText() );
+        salida.println("**Normal~" + login + " > " + areaTexto.getText());
         areaTexto.setText("");
     }
 }
@@ -71,7 +71,7 @@ class Talk {
         PrintStream salida;
         try {
             salida = new PrintStream(socket.getOutputStream());
-            salida.println(login + " se he conectado" );
+            salida.println("**Login~" +login + " se he conectado" );
 
             entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String mensaje;
