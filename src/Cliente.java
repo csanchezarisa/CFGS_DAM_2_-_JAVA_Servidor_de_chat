@@ -81,6 +81,7 @@ class AccionEnviarMensajePrivado implements ActionListener{
 
     public void actionPerformed(ActionEvent e){
         salida.println("**UnSol~" + login + "~" + areaTextoTo.getText() + "~" + areaTexto.getText());
+        areaTextoTo.grabFocus();
         areaTexto.setText("");
     }
 }
