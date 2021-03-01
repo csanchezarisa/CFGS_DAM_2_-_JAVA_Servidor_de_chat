@@ -105,7 +105,7 @@ class Talk {
         JPanel panelSuperior = new JPanel(new BorderLayout());
         marco.add(panelSuperior, "North");
         JButton botonLimpiar = new JButton("Limpiar");
-        panelSuperior.add(botonLimpiar, "West");
+        panelSuperior.add(botonLimpiar, "East");
         JPanel panel = new JPanel(new FlowLayout());
         marco.add(panel, "South");
         JTextField campoTexto = new JTextField(30);
