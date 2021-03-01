@@ -62,6 +62,29 @@ class AccionRecuperarMensajes implements ActionListener{
     }
 }
 
+class AccionEnviarMensajePrivado implements ActionListener{
+    private JTextField areaTexto;
+    private JTextField areaTextoTo;
+    private PrintStream salida;
+    private String login;
+
+    public AccionEnviarMensajePrivado(Socket s, JTextField at, JTextField atTo, String l){
+        areaTexto = at;
+        areaTextoTo = atTo;
+        try {
+            salida = new PrintStream(s.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        login = l;
+    }
+
+    public void actionPerformed(ActionEvent e){
+        salida.println("**UnSol~" + login + "~" + areaTextoTo.getText() + "~" + areaTexto.getText());
+        areaTexto.setText("");
+    }
+}
+
 class Talk {
     private Socket socket;
     private String login;
@@ -78,25 +101,40 @@ class Talk {
         JTextArea areaTexto = new JTextArea("");
         areaTexto.setEditable(false);
         marco.add(areaTexto, "Center");
+        JPanel panelSuperior = new JPanel(new BorderLayout());
+        marco.add(panelSuperior, "North");
+        JButton botonLimpiar = new JButton("Limpiar");
+        panelSuperior.add(botonLimpiar, "West");
         JPanel panel = new JPanel(new FlowLayout());
         marco.add(panel, "South");
         JTextField campoTexto = new JTextField(30);
+        campoTexto.setToolTipText("Text a enviar");
+        JTextField campoTextoTo = new JTextField(10);
+        campoTextoTo.setToolTipText("Usuari a enviar");
+        panel.add(campoTextoTo);
         panel.add(campoTexto);
         JButton botonEnviar = new JButton("Enviar");
         JButton botonRecuperarMensajes = new JButton("Recuperar mensajes");
+        JButton botonEnviarPrivado = new JButton("Enviar privado");
         panel.add(botonEnviar);
+        panel.add(botonEnviarPrivado);
         panel.add(botonRecuperarMensajes);
-        marco.setSize(600,800);
+        marco.setSize(1000,1000);
         marco.setVisible(true);
         AccionEnviar ae = new AccionEnviar(socket, campoTexto, login);
         AccionRecuperarMensajes recuperarMensajes = new AccionRecuperarMensajes(socket, campoTexto, login);
+        AccionEnviarMensajePrivado mensajePrivado = new AccionEnviarMensajePrivado(socket, campoTexto, campoTextoTo, login);
         botonEnviar.addActionListener(ae);
         botonRecuperarMensajes.addActionListener(recuperarMensajes);
+        botonEnviarPrivado.addActionListener(mensajePrivado);
+        botonLimpiar.addActionListener(e -> {
+            areaTexto.setText("");
+        });
         BufferedReader entrada;
         PrintStream salida;
         try {
             salida = new PrintStream(socket.getOutputStream());
-            salida.println("**Login~" +login + " se he conectado" );
+            salida.println("**Login~" + login + "~" + login + " se he conectado" );
 
             entrada = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String mensaje;
@@ -146,6 +184,7 @@ public class Cliente {
         JLabel label = new JLabel("Nombre de usuario");
         jPanel.add(label);
         JTextField editText = new JTextField(30);
+        editText.setToolTipText("Nom d'usuari");
         jPanel.add(editText);
 
         JButton botonLogin = new JButton("Login");
