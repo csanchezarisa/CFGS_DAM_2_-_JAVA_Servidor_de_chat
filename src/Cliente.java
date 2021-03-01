@@ -41,6 +41,27 @@ class AccionEnviar implements ActionListener{
     }
 }
 
+class AccionRecuperarMensajes implements ActionListener{
+    private JTextField areaTexto;
+    private PrintStream salida;
+    private String login;
+
+    public AccionRecuperarMensajes(Socket s, JTextField at, String l){
+        areaTexto = at;
+        try {
+            salida = new PrintStream(s.getOutputStream());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        login = l;
+    }
+
+    public void actionPerformed(ActionEvent e){
+        salida.println("**Todo~" + login);
+        areaTexto.setText("");
+    }
+}
+
 class Talk {
     private Socket socket;
     private String login;
@@ -62,11 +83,15 @@ class Talk {
         JTextField campoTexto = new JTextField(30);
         panel.add(campoTexto);
         JButton botonEnviar = new JButton("Enviar");
+        JButton botonRecuperarMensajes = new JButton("Recuperar mensajes");
         panel.add(botonEnviar);
+        panel.add(botonRecuperarMensajes);
         marco.setSize(600,800);
         marco.setVisible(true);
         AccionEnviar ae = new AccionEnviar(socket, campoTexto, login);
+        AccionRecuperarMensajes recuperarMensajes = new AccionRecuperarMensajes(socket, campoTexto, login);
         botonEnviar.addActionListener(ae);
+        botonRecuperarMensajes.addActionListener(recuperarMensajes);
         BufferedReader entrada;
         PrintStream salida;
         try {

@@ -73,6 +73,7 @@ class Serv implements Runnable{
 
                 switch (partesMensaje[0]) {
                     case "**Normal", "**Login" -> enviarMensajesNormal(partesMensaje);
+                    case "**Todo" -> recuperarMensajes(partesMensaje);
                 }
             }
         } catch (IOException e) {
@@ -93,6 +94,17 @@ class Serv implements Runnable{
         for (int i = 0; i < listaSockets.length(); i++) {
             listaSockets.getSalida(i).println(mensaje);
         }
+    }
+
+    private void recuperarMensajes(String[] partesMensaje) throws IOException {
+        String mensaje = "";
+        for (String mensajeRecuperado:
+             historialMensajes) {
+            mensaje += mensajeRecuperado + "\n";
+        }
+
+        PrintStream output = new PrintStream(socket.getOutputStream());
+        output.println(mensaje);
     }
 
 }
