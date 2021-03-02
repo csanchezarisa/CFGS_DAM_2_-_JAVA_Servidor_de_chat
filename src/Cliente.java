@@ -16,10 +16,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Socket;
-import java.util.Scanner;
 
 import javax.swing.*;
 
+/** Envia un mensaje "Normal" usa el prefijo "**Normal" */
 class AccionEnviar implements ActionListener{
     private JTextField areaTexto;
     private PrintStream salida;
@@ -41,6 +41,8 @@ class AccionEnviar implements ActionListener{
     }
 }
 
+/** Envia un mensaje para recuperar todos el historial de mensajes "normales"
+ * Envia un mensaje con el prefijo "**Todo" */
 class AccionRecuperarMensajes implements ActionListener{
     private JTextField areaTexto;
     private PrintStream salida;
@@ -62,6 +64,8 @@ class AccionRecuperarMensajes implements ActionListener{
     }
 }
 
+/** Envia un mensaje privado a un usuario especificado.
+ * Envia el mensaje con el prefijo "**UnSol" */
 class AccionEnviarMensajePrivado implements ActionListener{
     private JTextField areaTexto;
     private JTextField areaTextoTo;
@@ -97,15 +101,25 @@ class Talk {
 
     public void hablar(){
 
+        // Frame
         JFrame marco = new JFrame(login);
         marco.setLayout(new BorderLayout());
+
+        // Centro - Área de texto con scroll
         JTextArea areaTexto = new JTextArea("");
         areaTexto.setEditable(false);
-        marco.add(areaTexto, "Center");
+        JScrollPane areaTextoScroll = new JScrollPane (areaTexto);
+        marco.add(areaTextoScroll, "Center");
+
+        // Superior - Botones para limpiar y recuperar mensajes
         JPanel panelSuperior = new JPanel(new BorderLayout());
         marco.add(panelSuperior, "North");
         JButton botonLimpiar = new JButton("Limpiar");
         panelSuperior.add(botonLimpiar, "East");
+        JButton botonRecuperarMensajes = new JButton("Recuperar mensajes");
+        panelSuperior.add(botonRecuperarMensajes, "West");
+
+        // Inferior - TextFields para escribir y botones para enviar
         JPanel panel = new JPanel(new FlowLayout());
         marco.add(panel, "South");
         JTextField campoTexto = new JTextField(30);
@@ -115,13 +129,15 @@ class Talk {
         panel.add(campoTextoTo);
         panel.add(campoTexto);
         JButton botonEnviar = new JButton("Enviar");
-        JButton botonRecuperarMensajes = new JButton("Recuperar mensajes");
         JButton botonEnviarPrivado = new JButton("Enviar privado");
         panel.add(botonEnviar);
         panel.add(botonEnviarPrivado);
-        panel.add(botonRecuperarMensajes);
-        marco.setSize(1000,1000);
+
+        // Tamaño del marco y hacerlo visible
+        marco.setSize(700,800);
         marco.setVisible(true);
+
+        // Listener a los botones
         AccionEnviar ae = new AccionEnviar(socket, campoTexto, login);
         AccionRecuperarMensajes recuperarMensajes = new AccionRecuperarMensajes(socket, campoTexto, login);
         AccionEnviarMensajePrivado mensajePrivado = new AccionEnviarMensajePrivado(socket, campoTexto, campoTextoTo, login);
@@ -131,6 +147,8 @@ class Talk {
         botonLimpiar.addActionListener(e -> {
             areaTexto.setText("");
         });
+
+        // Escucha del socket del servidor para pintar por pantalla
         BufferedReader entrada;
         PrintStream salida;
         try {
@@ -169,14 +187,16 @@ public class Cliente {
 
         login();
 
-
+        // Espera a que el login tenga algún contenido
         while (Cliente.login == "") {
             System.out.println("Esperant login... Nom d'usuari " + login);
         }
 
+        // Inicia el programa principal
         openTalk();
     }
 
+    /** Abre una ventana en la que poder poner tu nombre de usuario */
     private static void login() throws IOException {
         JFrame frame = new JFrame("Login");
         frame.setLayout(new BorderLayout());
@@ -201,6 +221,7 @@ public class Cliente {
         });
     }
 
+    /** Crea el socket y abre la ventana del chat */
     private static void openTalk() {
         Socket socket = setSocket();
 
@@ -209,6 +230,8 @@ public class Cliente {
         finalizeClient(socket);
     }
 
+    /** Crea el socket con el servidor y lo devuelve
+     * @return Socket socket con el servidor */
     private static Socket setSocket() {
         Socket socket = null;
         try {
@@ -220,11 +243,17 @@ public class Cliente {
         return socket;
     }
 
+    /** Crea un objeto Talk y muestra el chat por pantalla
+     * @param socket socket que connecta con el servidor para
+     * mantener la comunicación bidireccional*/
     private static void talk(Socket socket) {
         Talk talk = new Talk(socket, login);
         talk.hablar();
     }
 
+    /** Acaba el programa
+     * @param socket socket de connexión con el servidor para cerrar
+     * correctamente la connexión*/
     private static void finalizeClient(Socket socket) {
         try {
             socket.close();
